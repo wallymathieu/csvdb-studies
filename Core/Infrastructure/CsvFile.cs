@@ -9,10 +9,13 @@ namespace SomeBasicCsvApp.Core
 {
     public class CsvFile
     {
+        private static CsvConfiguration conf = new CsvConfiguration{
+            Delimiter=";"
+        };
         public static Stream Write<T>(Stream stream, IEnumerable<T> data)
         {
             var w = new StreamWriter(stream);
-            var writer = new CsvWriter(w);
+            var writer = new CsvWriter(w,conf);
             writer.WriteRecords(data);
             w.Flush();
             return stream;
@@ -20,7 +23,7 @@ namespace SomeBasicCsvApp.Core
 
         public static IEnumerable<T> Read<T>(Stream data)
         {
-            using (var reader = new CsvReader(new StreamReader(data)))
+            using (var reader = new CsvReader(new StreamReader(data),conf))
             {
                 while (reader.Read())
                 {
@@ -37,7 +40,7 @@ namespace SomeBasicCsvApp.Core
             var last= r.ReadToEnd();
 
             var w = new StreamWriter(m);
-            var writer = new CsvWriter(w);
+            var writer = new CsvWriter(w,conf);
             if (!Regex.Match(last, "[\n\r]$").Success)
             {
                 w.WriteLine();

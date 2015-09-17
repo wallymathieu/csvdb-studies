@@ -25,15 +25,12 @@ namespace SomeBasicCsvApp.Core
         }
         public T Get<T>(int key) where T: IIdentifiableByNumber
         {
-            using (var s = Streams.OpenReadOnly( FileName<T>())){
-                var content = CsvFile.Read<T>(s);
-                var r = content.SingleOrDefault(v => v.Id == key);
-                if (Equals(r,null))
-                {
-                    throw new Exception("Could not find "+key+" in "+typeof(T).Name);
-                }
-                return r;
+            var r = this.QueryOver<T>().SingleOrDefault(v => v.Id == key);
+            if (Equals(r,null))
+            {
+                throw new Exception("Could not find "+key+" in "+typeof(T).Name);
             }
+            return r;
         }
 
         public void Save<T>(T value)
@@ -56,7 +53,11 @@ namespace SomeBasicCsvApp.Core
 
         public IQueryable<T> QueryOver<T>()
         {
-            throw new NotImplementedException();
+            using (var s = Streams.OpenReadOnly(FileName<T>()))
+            {
+                var content = CsvFile.Read<T>(s).ToArray();
+                return content.AsQueryable();
+            }
         }
 
         public void Close()
