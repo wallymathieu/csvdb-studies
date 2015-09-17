@@ -45,6 +45,9 @@
     <Reference Include="CsvHelper">
       <HintPath>..\packages\CsvHelper.2.13.2.0\lib\net40-client\CsvHelper.dll</HintPath>
     </Reference>
+    <Reference Include="With">
+      <HintPath>..\packages\With.0.4.19\lib\net40\With.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Customer.cs" />
@@ -57,6 +60,7 @@
     <Compile Include="Infrastructure\CsvFile.cs" />
     <Compile Include="Infrastructure\Session.cs" />
     <Compile Include="Infrastructure\SessionFactory.cs" />
+    <Compile Include="Entities\OrderProduct.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
