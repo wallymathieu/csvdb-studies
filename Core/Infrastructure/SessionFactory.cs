@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace SomeBasicCsvApp.Core
 {
@@ -6,14 +7,30 @@ namespace SomeBasicCsvApp.Core
     {
         ISession OpenSession();
     }
-    public class SessionFactory
+    public class SessionFactory:ISessionFactory
     {
-        public SessionFactory()
+        private readonly string path;
+        public SessionFactory(string path)
         {
+            this.path = path;
         }
         public static ISessionFactory CreateTestSessionFactory(string path){
-            throw new NotImplementedException();
+            if (!Directory.Exists(path)){
+                Directory.CreateDirectory(path);
+            }
+            return new SessionFactory(path);
         }
+
+        public ISession OpenSession()
+        {
+            return new Session(path);
+        }
+            
+        public void Dispose()
+        {
+            //TODO
+        }
+
     }
 }
 

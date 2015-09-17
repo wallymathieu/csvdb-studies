@@ -2,6 +2,7 @@ require 'albacore'
 require 'nuget_helper'
 
 task :default => [:build]
+dir = File.dirname(__FILE__)
 
 desc "Rebuild solution"
 build :build do |msb, args|
@@ -11,7 +12,7 @@ build :build do |msb, args|
 end
 
 desc "Install missing NuGet packages."
-nugets_restore :restore_nuget do |p|
+nugets_restore :restore do |p|
   p.out = "packages"
   p.nuget_gem_exe
 end

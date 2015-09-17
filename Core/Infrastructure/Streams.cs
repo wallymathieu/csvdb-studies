@@ -24,6 +24,10 @@ namespace SomeBasicCsvApp.Core
             }
         }
 
+        public static FileStream OpenCreate(string fileName)
+        {
+            return new FileStream(fileName, FileMode.CreateNew, FileAccess.Write, FileShare.Read);
+        }
         public static FileStream OpenReadOnly(string fileName)
         {
             return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);

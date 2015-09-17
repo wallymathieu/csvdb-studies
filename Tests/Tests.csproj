@@ -55,6 +55,7 @@
     <Compile Include="CustomerDataTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlImport.cs" />
+    <Compile Include="Infrastructure\CsvFileTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -84,4 +85,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Infrastructure\" />
+  </ItemGroup>
 </Project>
