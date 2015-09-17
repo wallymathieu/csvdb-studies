@@ -26,7 +26,13 @@ namespace SomeBasicCsvApp.Core
         public T Get<T>(int key) where T: IIdentifiableByNumber
         {
             using (var s = Streams.OpenReadOnly( FileName<T>())){
-                return CsvFile.Read<T>(s).First(v => v.Id == key);
+                var content = CsvFile.Read<T>(s);
+                var r = content.SingleOrDefault(v => v.Id == key);
+                if (Equals(r,null))
+                {
+                    throw new Exception("Could not find "+key+" in "+typeof(T).Name);
+                }
+                return r;
             }
         }
 
