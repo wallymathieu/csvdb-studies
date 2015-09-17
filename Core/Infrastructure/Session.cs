@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.IO;
+using System.Collections.Generic;
 
 
 namespace SomeBasicCsvApp.Core
@@ -10,7 +11,7 @@ namespace SomeBasicCsvApp.Core
         T Get<T>(int key) where T: IIdentifiableByNumber;
         void Save<T>(T value) ;
         IQueryable<T> QueryOver<T>();
-        void Close();
+        void Commit();
     }
     public class Session:ISession
     {
@@ -25,7 +26,7 @@ namespace SomeBasicCsvApp.Core
         }
         public T Get<T>(int key) where T: IIdentifiableByNumber
         {
-            var r = this.QueryOver<T>().SingleOrDefault(v => v.Id == key);
+            var r = this.QueryOver<T>().SingleOrDefault(v => v.GetId() == key);
             if (Equals(r,null))
             {
                 throw new Exception("Could not find "+key+" in "+typeof(T).Name);
@@ -33,22 +34,42 @@ namespace SomeBasicCsvApp.Core
             return r;
         }
 
+        private List<Command> commands = new List<Command>();
+        abstract class Command
+        {
+            public  abstract void Apply();
+        }
+        class SaveIt<T>:Command
+        {
+            private readonly T value;
+            private readonly Session session;
+            public SaveIt(T value, Session session)
+            {
+                this.value = value;
+                this.session = session;
+            }
+            public override void Apply(){
+                if (!File.Exists(session.FileName<T>()))
+                {
+                    using (var s = Streams.OpenCreate(session.FileName<T>()))
+                    {
+                        CsvFile.Write<T>(s,new []{ value });
+                    }
+                }
+                else
+                {
+                    using (var s = Streams.OpenReadWrite(session.FileName<T>()))
+                    {
+                        CsvFile.Append<T>(s,new []{ value });
+                    }
+                }
+            }
+
+        }
+
         public void Save<T>(T value)
         {
-            if (!File.Exists(FileName<T>()))
-            {
-                using (var s = Streams.OpenCreate(FileName<T>()))
-                {
-                    CsvFile.Write<T>(s,new []{ value });
-                }
-            }
-            else
-            {
-                using (var s = Streams.OpenReadWrite(FileName<T>()))
-                {
-                    CsvFile.Append<T>(s,new []{ value });
-                }
-            }
+            commands.Add(new SaveIt<T>(value,this));
         }
 
         public IQueryable<T> QueryOver<T>()
@@ -60,8 +81,13 @@ namespace SomeBasicCsvApp.Core
             }
         }
 
-        public void Close()
+        public void Commit()
         {
+            foreach (var item in commands)
+            {
+                item.Apply();
+            }
+            commands.Clear();
         }
             
         public void Dispose()

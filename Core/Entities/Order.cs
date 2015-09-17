@@ -5,6 +5,11 @@ namespace SomeBasicCsvApp.Core.Entities
 {
     public class Order : IIdentifiableByNumber
     {
+        public int GetId()
+        {
+            return Id;
+        }
+
         public virtual Customer Customer { get; set; }
 
         public virtual DateTime OrderDate { get; set; }

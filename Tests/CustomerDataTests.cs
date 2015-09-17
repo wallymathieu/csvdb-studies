@@ -80,7 +80,6 @@ namespace SomeBasicCsvApp.Tests
         [TearDown]
         public void TearDown()
         {
-            _session.Close();
             _session.Dispose();
         }
 
@@ -107,6 +106,7 @@ namespace SomeBasicCsvApp.Tests
                     {
                         Console.WriteLine("ignoring property {1} on {0}", type.Name, property.PropertyType.Name);
                     });
+                session.Commit();
             }
             using (var session = _sessionFactory.OpenSession())
             {
@@ -121,6 +121,7 @@ namespace SomeBasicCsvApp.Tests
                 {
                     session.Get<Order>(orderId).Customer = session.Get<Customer>(customerId);
                 });
+                session.Commit();
             }
         }
 

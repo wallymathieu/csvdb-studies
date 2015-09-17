@@ -4,6 +4,10 @@ namespace SomeBasicCsvApp.Core.Entities
 {
     public class Product : IIdentifiableByNumber
     {
+        public int GetId()
+        {
+            return Id;
+        }
 
         public virtual float Cost { get; set; }
 
