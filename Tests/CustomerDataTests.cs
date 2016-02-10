@@ -31,7 +31,7 @@ namespace SomeBasicCsvApp.Tests
         {
             var customer = _session.Get<Customer>(1);
 
-            Assert.True(_session.QueryOver<Order>().Any(o=>o.CustomerId ==1 ));
+            Assert.True(_session.QueryOver<Order>().Any(o=>o.Customer == customer.Id));
         }
 
         [Test]
@@ -39,8 +39,7 @@ namespace SomeBasicCsvApp.Tests
         {
             var product = _session.Get<Product>(1);
 
-            Assert.Fail();
-            //Assert.True(product.Orders.Any());
+            Assert.True(_session.QueryOver<OrderProduct>().Any(op=>op.ProductId==product.Id));
         }
 
         [Test]
@@ -59,19 +58,20 @@ namespace SomeBasicCsvApp.Tests
 
             Assert.IsNotNull(product);
         }
+
         [Test]
         public void OrderContainsProduct()
         {
-            Assert.Fail();
-            //Assert.True(_session.Get<Order>(1).Products.Any(p => p.Id == 1));
+            var order = _session.Get<Order>(1);
+
+            Assert.True(_session.QueryOver<OrderProduct>().Any(op => op.OrderId==order.Id));
         }
+
         [Test]
         public void OrderHasACustomer()
         {
-            Assert.Fail();
-            //Assert.IsNotNullOrEmpty(_session.Get<Order>(1).Customer.Firstname);
+            Assert.IsTrue(_session.Get<Order>(1).Customer>0);
         }
-
 
         [SetUp]
         public void Setup()
@@ -122,7 +122,7 @@ namespace SomeBasicCsvApp.Tests
 
                 import.ParseIntProperty("Order", "Customer", (orderId, customerId) =>
                 {
-                    session.Get<Order>(orderId).CustomerId = session.Get<Customer>(customerId).Id;
+                    session.Get<Order>(orderId).Customer = session.Get<Customer>(customerId).Id;
                 });
                 session.Commit();
             }

@@ -7,7 +7,7 @@ namespace SomeBasicCsvApp.Core.Entities
     {
         public virtual int Id { get; set; }
 
-        public virtual int CustomerId { get; set; }
+        public virtual int Customer { get; set; }
 
         public virtual DateTime OrderDate { get; set; }
 
