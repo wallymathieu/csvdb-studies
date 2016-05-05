@@ -1,1 +1,1 @@
-# csvdb-studies
+# csvdb-studies [![Build status](https://ci.appveyor.com/api/projects/status/nr5hsfb0hdbw6vpk/branch/master?svg=true)](https://ci.appveyor.com/project/wallymathieu/csvdb-studies/branch/master) [![Build Status](https://travis-ci.org/wallymathieu/csvdb-studies.svg?branch=master)](https://travis-ci.org/wallymathieu/csvdb-studies)
