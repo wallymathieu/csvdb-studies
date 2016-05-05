@@ -1,0 +1,10 @@
+source https://dotnet.myget.org/F/dotnet-core/api/v3/index.json
+source https://www.nuget.org/api/v2/
+source https://www.nuget.org/api/v2/
+framework >= net45
+
+nuget CsvHelper 2.13.5.0
+nuget NUnit 2.6.4
+nuget NUnit.Runners 2.6.4
+nuget With 1.0.8
+nuget FAKE

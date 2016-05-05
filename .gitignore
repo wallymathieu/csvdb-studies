@@ -194,3 +194,12 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+# Paket dependency manager
+.paket/paket.exe
+
+# FAKE - F# Make
+.fake/
+
+# Test result
+TestResults.xml
