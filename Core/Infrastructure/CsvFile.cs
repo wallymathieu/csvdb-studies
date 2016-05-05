@@ -41,7 +41,7 @@ namespace SomeBasicCsvApp.Core
 
             var w = new StreamWriter(m);
             var writer = new CsvWriter(w,conf);
-            if (!Regex.Match(last, "[\n\r]$").Success)
+            if (!Regex.Match(last, "[\n\r]+$").Success)
             {
                 w.WriteLine();
             }
