@@ -53,7 +53,7 @@ Target "clean" (fun _ ->
 
 Target "build" (fun _ ->
     !! solutionFile
-    |> MSBuildRelease "" "Rebuild"
+    |> MSBuildReleaseExt "" [("Platform", "Any CPU")] "Rebuild"
     |> ignore
 )
 
