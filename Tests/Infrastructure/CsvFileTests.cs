@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System.IO;
 using SomeBasicCsvApp.Core;
+using System.Text.RegularExpressions;
 
 namespace SomeBasicCsvApp.Tests
 {
@@ -28,7 +29,7 @@ DATA";
             using (var m = new MemoryStream())
             {
                 var written = Streams.ToString(CsvFile.Write(m, CsvFile.Read<Data>(Streams.ToStream(data))));//write read data
-                Assert.AreEqual(data, written);
+                Assert_AreEqual_ExceptNewline(data, written);
             }
         }
 
@@ -50,7 +51,7 @@ DATA2
                                 C1 = "DATA2"
                             }
                         }));//append data
-                Assert.AreEqual(expected, written);
+                Assert_AreEqual_ExceptNewline(expected, written);
             }
         }
 
@@ -71,10 +72,15 @@ DATA2
                                 C1 = "DATA2"
                             }
                         }));//append data
-                Assert.AreEqual(expected, written);
+                Assert_AreEqual_ExceptNewline(expected, written);
             }
         }
 
+        private readonly Regex newLine = new Regex("[\n\r]+");
+        private void Assert_AreEqual_ExceptNewline(string expected, string written)
+        {
+            Assert.AreEqual(newLine.Replace(expected, "\n"), newLine.Replace(written, "\n"));
+        }
     }
 }
 
