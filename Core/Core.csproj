@@ -71,8 +71,11 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2')">
       <ItemGroup>
         <Reference Include="CsvHelper">
-          <HintPath>..\packages\CsvHelper\lib\net40-client\CsvHelper.dll</HintPath>
+          <HintPath>..\packages\CsvHelper\lib\net45\CsvHelper.dll</HintPath>
           <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="mscorlib">
           <Paket>True</Paket>
         </Reference>
       </ItemGroup>
