@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 namespace SomeBasicCsvApp.Core.Entities
 {
-    public class Product : IIdentifiableByNumber
+    [Serializable]
+    public class Product : IIdentifiableByNumber, IHasVersion
     {
         public virtual int Id { get; set; }
 
@@ -11,7 +12,5 @@ namespace SomeBasicCsvApp.Core.Entities
         public virtual string Name { get; set; }
 
         public virtual int Version { get; set; }
-
-
     }
 }

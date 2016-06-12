@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace SomeBasicCsvApp.Core.Entities
 {
-    public class Order : IIdentifiableByNumber
+    [Serializable]
+    public class Order : IIdentifiableByNumber, IHasVersion
     {
         public virtual int Id { get; set; }
 
@@ -12,6 +13,5 @@ namespace SomeBasicCsvApp.Core.Entities
         public virtual DateTime OrderDate { get; set; }
 
         public virtual int Version { get; set; }
-
     }
 }

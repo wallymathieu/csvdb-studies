@@ -2,32 +2,41 @@
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-
+using SomeBasicCsvApp.Core.Infrastructure.Internal;
 
 namespace SomeBasicCsvApp.Core
 {
     public interface ISession : IDisposable
     {
         T Get<T>(int key) where T : IIdentifiableByNumber;
-        void Save<T>(T value);
-        IQueryable<T> QueryOver<T>();
+        void Save<T>(T value) where T : IIdentifiableByNumber;
+        IEnumerable<T> Where<T>(Func<T, bool> predicate) where T : IIdentifiableByNumber;
+        bool Any<T>(Func<T, bool> predicate) where T : IIdentifiableByNumber;
         void Commit();
     }
     public class Session : ISession
     {
-        private readonly string basepath;
+        private readonly string _basepath;
+        private readonly Dictionary<Tuple<Type, int>, Entity> _sessionObjects;
+
         public Session(string basepath)
         {
-            this.basepath = basepath;
+            _basepath = basepath;
+            _sessionObjects = new Dictionary<Tuple<Type, int>, Entity>();
         }
 
         private string FileName<T>()
         {
-            return Path.Combine(basepath, typeof(T).Name.ToLower());
+            return FileName(typeof(T));
         }
+        private string FileName(Type t)
+        {
+            return Path.Combine(_basepath, t.Name.ToLower());
+        }
+
         public T Get<T>(int key) where T : IIdentifiableByNumber
         {
-            var r = this.QueryOver<T>().SingleOrDefault(v => v.GetId() == key);
+            var r = this.Where<T>(v => v.Id == key).FirstOrDefault();
             if (ReferenceEquals(r, null))
             {
                 throw new Exception("Could not find " + key + " in " + typeof(T).Name);
@@ -35,66 +44,81 @@ namespace SomeBasicCsvApp.Core
             return r;
         }
 
-        private List<Command> commands = new List<Command>();
-        abstract class Command
+        public void Save<T>(T value) where T : IIdentifiableByNumber
         {
-            public abstract void Apply();// todo: should not know how to apply itself, it's a command, should be able to rewrite the command stream
-        }
-        class SaveIt<T> : Command
-        {
-            private readonly T value;
-            private readonly Session session;//todo: Should not know of session
-            public SaveIt(T value, Session session)
+            var key = Tuple.Create(value.GetType(), value.Id);
+            if (!_sessionObjects.ContainsKey(key))
             {
-                this.value = value;
-                this.session = session;
-            }
-            public override void Apply()
-            {
-                if (!File.Exists(session.FileName<T>()))
-                {
-                    using (var s = Streams.OpenCreate(session.FileName<T>()))
-                    {
-                        CsvFile.Write<T>(s, new[] { value });
-                    }
-                }
-                else
-                {
-                    using (var s = Streams.OpenReadWrite(session.FileName<T>()))
-                    {
-                        CsvFile.Append<T>(s, new[] { value });
-                    }
-                }
+                _sessionObjects.Add(key, Entity.New<T>(value));
             }
         }
 
-        public void Save<T>(T value)
-        {
-            commands.Add(new SaveIt<T>(value, this));
-        }
-
-        public IQueryable<T> QueryOver<T>()
+        public IEnumerable<T> Where<T>(Func<T, bool> predicate) where T : IIdentifiableByNumber
         {
             using (var s = Streams.OpenReadOnly(FileName<T>()))
             {
-                var content = CsvFile.Read<T>(s).ToArray();
-                return content.AsQueryable();
+                var content = CsvFile.Read<T>(s)
+                    .ToArray()
+                    .Reverse()
+                    .GroupBy(v=>v.Id)
+                    .Select(v=>v.First());
+                return TapCollection(content.Where(predicate).ToArray());
+            }
+        }
+
+        public bool Any<T>(Func<T, bool> predicate) where T : IIdentifiableByNumber
+        {
+            return Where(predicate).Any();
+        }
+
+        private IEnumerable<T> TapCollection<T>(T[] collection) where T : IIdentifiableByNumber
+        {
+            foreach (var item in collection)
+            {
+                var key = Tuple.Create(item.GetType(), item.Id);
+                Entity value;
+                if (_sessionObjects.TryGetValue(key, out value))
+                {
+                    yield return (T)value.Value;
+                }
+                else
+                {
+                    _sessionObjects.Add(key, Entity.Existing(item));
+                    yield return item;
+                }
             }
         }
 
         public void Commit()
         {
-            foreach (var item in commands)
+            var groupedByType = _sessionObjects.GroupBy(so => so.Key.Item1);
+            foreach (var typeGroup in groupedByType)
             {
-                item.Apply();
+                var type = typeGroup.Key;
+                if (!File.Exists(FileName(type)))
+                {
+                    using (var s = Streams.OpenCreate(FileName(type)))
+                    {
+                        CsvFile.Write(s, type, typeGroup
+                            .Select(e => e.Value.Value));
+                    }
+                }
+                else
+                {
+                    using (var s = Streams.OpenReadWrite(FileName(type)))
+                    {
+                        CsvFile.Append(s, type, typeGroup
+                            .Where(e=>e.Value.IsChanged())
+                            .Select(e => e.Value.GetChanged()));
+                    }
+                }
             }
-            commands.Clear();
         }
 
         public void Dispose()
         {
+            _sessionObjects.Clear();
         }
-
     }
 }
 

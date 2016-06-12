@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SomeBasicCsvApp.Core.Entities
 {
-    public class Customer : IIdentifiableByNumber
+    [Serializable]
+    public class Customer : IIdentifiableByNumber, IHasVersion
     {
         public virtual int Id { get; set; }
 

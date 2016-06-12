@@ -31,7 +31,7 @@ namespace SomeBasicCsvApp.Tests
         {
             var customer = _session.Get<Customer>(1);
 
-            Assert.True(_session.QueryOver<Order>().Any(o=>o.Customer == customer.Id));
+            Assert.True(_session.Any<Order>(o => o.Customer == customer.Id));
         }
 
         [Test]
@@ -39,16 +39,33 @@ namespace SomeBasicCsvApp.Tests
         {
             var product = _session.Get<Product>(1);
 
-            Assert.True(_session.QueryOver<OrderProduct>().Any(op=>op.ProductId==product.Id));
+            Assert.True(_session.Any<OrderProduct>(op => op.ProductId == product.Id));
         }
 
         [Test]
         public void CanGetCustomerByFirstname()
         {
-            var customers = _session.QueryOver<Customer>()
-                .Where(c => c.Firstname == "Steve")
+            var customers = _session.Where<Customer>(c => c.Firstname == "Steve")
                 .ToList();
             Assert.AreEqual(3, customers.Count);
+        }
+
+        [Test]
+        public void CanUpdateCustomer()
+        {
+            Customer customer;
+            int version;
+            using (var session = _sessionFactory.OpenSession())
+            {
+                customer = session.Get<Customer>(1);
+                customer.Lastname += "_Updated";
+                version = customer.Version;
+                session.Commit();
+            }
+
+            var c = _session.Get<Customer>(1);
+            Assert.That(c.Lastname, Is.EqualTo(customer.Lastname));
+            Assert.That(c.Version, Is.EqualTo(version + 1));
         }
 
         [Test]
@@ -64,13 +81,13 @@ namespace SomeBasicCsvApp.Tests
         {
             var order = _session.Get<Order>(1);
 
-            Assert.True(_session.QueryOver<OrderProduct>().Any(op => op.OrderId==order.Id));
+            Assert.True(_session.Any<OrderProduct>(op => op.OrderId == order.Id));
         }
 
         [Test]
         public void OrderHasACustomer()
         {
-            Assert.IsTrue(_session.Get<Order>(1).Customer>0);
+            Assert.IsTrue(_session.Get<Order>(1).Customer > 0);
         }
 
         [SetUp]
@@ -89,7 +106,7 @@ namespace SomeBasicCsvApp.Tests
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            if (Directory.Exists("CustomerDataTests")) { Directory.Delete("CustomerDataTests",recursive:true); }
+            if (Directory.Exists("CustomerDataTests")) { Directory.Delete("CustomerDataTests", recursive: true); }
 
             _sessionFactory = SessionFactory.CreateTestSessionFactory(new ConsoleMapPath().MapPath("CustomerDataTests"));
             var doc = XDocument.Load(Path.Combine("TestData", "TestData.xml"));
@@ -97,14 +114,14 @@ namespace SomeBasicCsvApp.Tests
             using (var session = _sessionFactory.OpenSession())
             {
                 import.Parse(new[] { typeof(Customer), typeof(Order), typeof(Product) },
-                    (type, obj) => 
+                    (type, obj) =>
                     {
                         Switch.On(obj)
-                            .Case((Customer c)=>session.Save(c))
-                            .Case((Order o)=>session.Save(o))
-                            .Case((Product p)=>session.Save(p))
+                            .Case((Customer c) => session.Save(c))
+                            .Case((Order o) => session.Save(o))
+                            .Case((Product p) => session.Save(p))
                             .ElseFail();
-                    }, 
+                    },
                     onIgnore: (type, property) =>
                     {
                         Console.WriteLine("ignoring property {1} on {0}", type.Name, property.PropertyType.Name);
@@ -113,11 +130,12 @@ namespace SomeBasicCsvApp.Tests
             }
             using (var session = _sessionFactory.OpenSession())
             {
+                int sequence = 0;
                 import.ParseConnections("OrderProduct", "Product", "Order", (productId, orderId) =>
                 {
                     var product = session.Get<Product>(productId);
                     var order = session.Get<Order>(orderId);
-                    session.Save(new OrderProduct{OrderId=order.Id, ProductId=product.Id });
+                    session.Save(new OrderProduct { OrderId = order.Id, ProductId = product.Id, Id = ++sequence });
                 });
 
                 import.ParseIntProperty("Order", "Customer", (orderId, customerId) =>
