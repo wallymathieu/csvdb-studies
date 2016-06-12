@@ -58,7 +58,6 @@ namespace SomeBasicCsvApp.Core
             using (var s = Streams.OpenReadOnly(FileName<T>()))
             {
                 var content = CsvFile.Read<T>(s)
-                    .ToArray()
                     .Reverse()
                     .GroupBy(v=>v.Id)
                     .Select(v=>v.First());

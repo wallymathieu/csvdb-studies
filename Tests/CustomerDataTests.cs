@@ -69,6 +69,31 @@ namespace SomeBasicCsvApp.Tests
         }
 
         [Test]
+        public void CanInsertATenThousandRecords()
+        {
+            var len = 10000;
+            using (var session = _sessionFactory.OpenSession())
+            {
+                var pid = session.Where<Product>(prod => true).Max(prod => prod.Id);
+                for (int i = pid + 1; i < len + 1; i++)
+                {
+                    var p = new Product
+                    {
+                        Id = i,
+                        Cost = i,
+                        Name = "prod" + i,
+                        Version = 1
+                    };
+                    session.Save(p);
+                }
+                session.Commit();
+            }
+
+            var products = _session.Where<Product>(prod => true).ToArray();
+            Assert.That(products.Length, Is.GreaterThanOrEqualTo(len));
+        }
+
+        [Test]
         public void CanGetProductById()
         {
             var product = _session.Get<Product>(1);
