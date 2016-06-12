@@ -50,6 +50,7 @@
     <Compile Include="IMapPath.cs" />
     <Compile Include="Entities\Product.cs" />
     <Compile Include="Infrastructure\Internal\Entity.cs" />
+    <Compile Include="Infrastructure\ISession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\Streams.cs" />
     <Compile Include="Infrastructure\CsvFile.cs" />

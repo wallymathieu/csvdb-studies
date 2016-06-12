@@ -6,7 +6,7 @@ using CsvHelper;
 using System.Text.RegularExpressions;
 using System.Collections;
 
-namespace SomeBasicCsvApp.Core
+namespace SomeBasicCsvApp.Core.Infrastructure
 {
     public class CsvFile
     {

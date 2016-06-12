@@ -4,16 +4,8 @@ using System.IO;
 using System.Collections.Generic;
 using SomeBasicCsvApp.Core.Infrastructure.Internal;
 
-namespace SomeBasicCsvApp.Core
+namespace SomeBasicCsvApp.Core.Infrastructure
 {
-    public interface ISession : IDisposable
-    {
-        T Get<T>(int key) where T : IIdentifiableByNumber;
-        void Save<T>(T value) where T : IIdentifiableByNumber;
-        IEnumerable<T> Where<T>(Func<T, bool> predicate) where T : IIdentifiableByNumber;
-        bool Any<T>(Func<T, bool> predicate) where T : IIdentifiableByNumber;
-        void Commit();
-    }
     public class Session : ISession
     {
         private readonly string _basepath;
@@ -117,6 +109,21 @@ namespace SomeBasicCsvApp.Core
         public void Dispose()
         {
             _sessionObjects.Clear();
+        }
+
+        public long Count<T>(Func<T, bool> predicate) where T : IIdentifiableByNumber
+        {
+            return Where<T>(predicate).Count();
+        }
+
+        public TRet Max<T, TRet>(Func<T, bool> predicate, Func<T, TRet> map) where T : IIdentifiableByNumber
+        {
+            return Where<T>(predicate).Max(map);
+        }
+
+        public TRet Min<T, TRet>(Func<T, bool> predicate, Func<T, TRet> map) where T : IIdentifiableByNumber
+        {
+            return Where<T>(predicate).Min(map);
         }
     }
 }

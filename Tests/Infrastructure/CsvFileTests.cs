@@ -1,8 +1,7 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.IO;
-using SomeBasicCsvApp.Core;
 using System.Text.RegularExpressions;
+using SomeBasicCsvApp.Core.Infrastructure;
 
 namespace SomeBasicCsvApp.Tests
 {

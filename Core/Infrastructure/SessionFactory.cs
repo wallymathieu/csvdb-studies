@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace SomeBasicCsvApp.Core
+namespace SomeBasicCsvApp.Core.Infrastructure
 {
     public interface ISessionFactory:IDisposable
     {

@@ -7,6 +7,8 @@ using System.Linq;
 using SomeBasicCsvApp.Core.Entities;
 using System;
 using With;
+using SomeBasicCsvApp.Core.Infrastructure;
+
 namespace SomeBasicCsvApp.Tests
 {
     [TestFixture]
@@ -69,12 +71,12 @@ namespace SomeBasicCsvApp.Tests
         }
 
         [Test]
-        public void CanInsertATenThousandRecords()
+        public void CanInsertTenThousandRecords()
         {
             var len = 10000;
             using (var session = _sessionFactory.OpenSession())
             {
-                var pid = session.Where<Product>(prod => true).Max(prod => prod.Id);
+                var pid = session.Max<Product, int>(prod => prod.Id);
                 for (int i = pid + 1; i < len + 1; i++)
                 {
                     var p = new Product
@@ -89,8 +91,8 @@ namespace SomeBasicCsvApp.Tests
                 session.Commit();
             }
 
-            var products = _session.Where<Product>(prod => true).ToArray();
-            Assert.That(products.Length, Is.GreaterThanOrEqualTo(len));
+            var products = _session.Count<Product>();
+            Assert.That(products, Is.GreaterThanOrEqualTo(len));
         }
 
         [Test]
