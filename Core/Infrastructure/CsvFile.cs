@@ -10,15 +10,19 @@ namespace SomeBasicCsvApp.Core.Infrastructure
 {
     public class CsvFile
     {
-        private static CsvConfiguration conf = new CsvConfiguration
+        private static CsvConfiguration GetConf()
         {
-            Delimiter = ";"
-        };
+            return new CsvConfiguration
+            {
+                Delimiter = ";"
+            };
+        }
         public static Stream Write(Stream stream, Type type, IEnumerable data)
         {
+            var conf = GetConf();
             var w = new StreamWriter(stream);
             var writer = new CsvWriter(w, conf);
-            var map = writer.Configuration.AutoMap(type);
+            writer.Configuration.AutoMap(type);
             writer.WriteHeader(type);
             foreach (var item in data)
             {
@@ -34,6 +38,8 @@ namespace SomeBasicCsvApp.Core.Infrastructure
 
         public static IEnumerable<T> Read<T>(Stream data)
         {
+            var conf = GetConf();
+            conf.AutoMap<T>();
             using (var reader = new CsvReader(new StreamReader(data), conf))
             {
                 while (reader.Read())
@@ -54,8 +60,9 @@ namespace SomeBasicCsvApp.Core.Infrastructure
             var last = r.ReadToEnd();
 
             var w = new StreamWriter(m);
+            var conf = GetConf();
+            conf.AutoMap(t);
             var writer = new CsvWriter(w, conf);
-            writer.Configuration.AutoMap(t);
             if (!Regex.Match(last, "[\n\r]+$").Success)
             {
                 w.WriteLine();
